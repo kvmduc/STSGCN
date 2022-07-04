@@ -18,7 +18,8 @@ class trainer():
         self.optimizer.zero_grad()
         output = self.model(input)
         real = torch.unsqueeze(real_val,dim=3)
-        predict = self.scaler.inverse_transform(output)
+        # predict = self.scaler.inverse_transform(output)
+        predict = output
         loss = self.loss(predict, real, rho=1, null_val=0.0)
         loss.backward()
         self.optimizer.step()
@@ -31,7 +32,8 @@ class trainer():
         self.model.eval()
         output = self.model(input)
         real = torch.unsqueeze(real_val,dim=3)
-        predict = self.scaler.inverse_transform(output)
+        # predict = self.scaler.inverse_transform(output)
+        predict = output
         loss = self.loss(predict, real, rho=1, null_val=0.0)
         mae = util.masked_mae(predict, real, 0.0).item()
         mape = util.masked_mape(predict,real,0.0).item()
