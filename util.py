@@ -3,6 +3,9 @@ import numpy as np
 import os
 import torch
 import os.path as osp
+import logging
+import time
+import sys
 
 
 class DataLoader(object):
@@ -207,3 +210,26 @@ class lr_new():
         if num_update <= self.max_update:
             base_lr = 0 + (self.base_lr_orig - 0) * pow(1 - float(num_update - self.warmup_steps) / float(self.max_steps), self.power)
             return base_lr
+
+
+def init_log():
+    log_dir = './log/'
+    log_filename = 'info_%s' % time.strftime('%m-%d-%H-%M-%S')
+    logger = logging.getLogger(__name__)
+
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    logger.setLevel(logging.INFO)
+    fh = logging.FileHandler(osp.join(log_dir, log_filename+".log"))
+    fh.setLevel(logging.INFO)
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s - %(message)s")
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+    logger.info("logger name:%s", osp.join(log_dir, log_filename+".log"))
+    # vars(args)["logger"] = logger
+    return logger

@@ -10,8 +10,10 @@ import os.path as osp
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--device',type=str,default='cuda:0',help='')
-parser.add_argument('--data',type=str,default='data/PEMS08',help='data path')
-parser.add_argument('--adjdata',type=str,default='data/PEMS08/adj_pems08.pkl',help='adj data path')
+################ Path to data ################
+parser.add_argument('--data',type=str,default='/data/cs.aau.dk/tungkvt/Trafficstream/district3F11T17/FastData/',help='data path')
+parser.add_argument('--adjdata',type=str,default='/data/cs.aau.dk/tungkvt/Trafficstream/district3F11T17/graph/',help='adj data path')
+################              ################
 parser.add_argument('--seq_length',type=int,default=12,help='Input sequence length')
 parser.add_argument('--num_for_predict',type=int,default=12,help='Forecast sequence length')
 parser.add_argument('--nhid',type=int,default=64,help='Hidden layer dimensions')
@@ -21,7 +23,7 @@ parser.add_argument('--batch_size',type=int,default=32,help='batch size')
 parser.add_argument('--learning_rate',type=float,default=1e-3,help='learning rate')
 parser.add_argument('--epochs',type=int,default=100,help='') # 200
 parser.add_argument('--print_every',type=int,default=100,help='Training print')
-parser.add_argument('--save',type=str,default='./garage/PEMS08',help='save path')
+parser.add_argument('--save',type=str,default='/data/cs.aau.dk/tungkvt/Trafficstream/result/graph-wavenet/',help='save path')
 parser.add_argument('--expid',type=int,default=1,help='experiment id')
 parser.add_argument('--gcn_num',type=int,default=3,help='Number of gcn')
 parser.add_argument('--layer_num',type=int,default=4,help='Number of layers')
@@ -90,7 +92,7 @@ def main():
                 engine.scheduler.step() #
                 if iter % args.print_every == 0 :
                     log = 'Iter: {:03d}, Train Loss: {:.4f}, Train MAE: {:.4f}, Train MAPE: {:.4f}, Train RMSE: {:.4f}'
-                    logger.info(log.format(iter, train_loss[-1], train_mae[-1], train_mape[-1], train_rmse[-1]),flush=True)
+                    logger.info(log.format(iter, train_loss[-1], train_mae[-1], train_mape[-1], train_rmse[-1]))
             t2 = time.time()
             train_time.append(t2-t1)
 
@@ -127,7 +129,7 @@ def main():
             his_loss.append(mvalid_loss)
 
             log = 'Epoch: {:03d}, Train Loss: {:.4f}, Train MAE: {:.4f}, Train MAPE: {:.4f}, Train RMSE: {:.4f}, Valid Loss: {:.4f}, Valid MAE: {:.4f}, Valid MAPE: {:.4f}, Valid RMSE: {:.4f}, Training Time: {:.4f}/epoch'
-            logger.info(log.format(i, mtrain_loss, mtrain_mae, mtrain_mape, mtrain_rmse, mvalid_loss, mvalid_mae, mvalid_mape, mvalid_rmse, (t2 - t1)),flush=True)
+            logger.info(log.format(i, mtrain_loss, mtrain_mae, mtrain_mape, mtrain_rmse, mvalid_loss, mvalid_mae, mvalid_mape, mvalid_rmse, (t2 - t1)))
             torch.save(engine.model.state_dict(), args.save+"_epoch_"+str(i)+"_"+str(round(mvalid_loss,2))+".pth")
         logger.info("Average Training Time: {:.4f} secs/epoch".format(np.mean(train_time)))
         logger.info("Average Inference Time: {:.4f} secs".format(np.mean(val_time)))
