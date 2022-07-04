@@ -3,14 +3,14 @@ from model import *
 import util
 
 class trainer():
-    def __init__(self, scaler, args, adj, global_train_steps):
+    def __init__(self, args, adj, global_train_steps):
         lr_new = util.lr_new(args, global_train_steps)
         self.model = stsgcn(args, adj)
         self.model.cuda()
         self.optimizer = optim.Adam(self.model.parameters(), lr=args.learning_rate)
         self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, lr_lambda =lambda num_update:(lr_new.update(num_update)/args.learning_rate))
         self.loss = util.huber_loss
-        self.scaler = scaler
+        # self.scaler = scaler
 
 
     def train(self, input, real_val):

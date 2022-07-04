@@ -5,6 +5,7 @@ import time
 import util
 from engine import trainer
 import os
+import os.path as osp
 
 parser = argparse.ArgumentParser()
 
@@ -18,7 +19,7 @@ parser.add_argument('--in_dim',type=int,default=1,help='inputs dimension')
 parser.add_argument('--num_nodes',type=int,default=170,help='number of nodes')
 parser.add_argument('--batch_size',type=int,default=32,help='batch size')
 parser.add_argument('--learning_rate',type=float,default=1e-3,help='learning rate')
-parser.add_argument('--epochs',type=int,default=200,help='') # 200
+parser.add_argument('--epochs',type=int,default=100,help='') # 200
 parser.add_argument('--print_every',type=int,default=100,help='Training print')
 parser.add_argument('--save',type=str,default='./garage/PEMS08',help='save path')
 parser.add_argument('--expid',type=int,default=1,help='experiment id')
@@ -26,7 +27,7 @@ parser.add_argument('--gcn_num',type=int,default=3,help='Number of gcn')
 parser.add_argument('--layer_num',type=int,default=4,help='Number of layers')
 parser.add_argument('--max_update_factor',type=int,default=1,help='max update factor')
 parser.add_argument('--begin_year',type=int,default=2011,help='begin year')
-parser.add_argument('--end_year',type=int,default=2013,help='end year')
+parser.add_argument('--end_year',type=int,default=2011,help='end year')
 
 
 args = parser.parse_args()
@@ -48,7 +49,8 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 def main():
     for year in range (args.begin_year, args.end_year + 1):
 
-        adj_mx = util.load_adj(args.adjdata)
+        adj_path = osp.join(args.adjdata, str(year)+"_adj.npz")
+        adj_mx = util.load_adj(adj_path)
         vars(args)['num_nodes'] = adj_mx.shape[0]
         adj_mx = util.construct_adj(adj_mx,3).cuda()
 
@@ -76,10 +78,10 @@ def main():
             for iter, (x, y) in enumerate(dataloader['train_loader'].get_iterator()):
                 trainx = torch.Tensor(x).cuda()
                 trainx= trainx
-                print(trainx.shape)             # (b, seq_len, num_node, in_dim)
+                # print(trainx.shape)             # (b, seq_len, num_node, in_dim)
                 trainy = torch.Tensor(y).cuda()
                 trainy = trainy
-                print(trainy.shape)             # (b, seq_len, num_node, in_dim)
+                # print(trainy.shape)             # (b, seq_len, num_node, in_dim)
                 metrics = engine.train(trainx, trainy[:,:,:,0])
                 train_loss.append(metrics[0])
                 train_mae.append(metrics[1])
