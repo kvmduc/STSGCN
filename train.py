@@ -60,11 +60,11 @@ def main():
 
         global_train_steps = dataloader['train_loader'].num_batch
 
-        print(args)
+        logger.info(args)
 
         engine = trainer(args, adj_mx, global_train_steps)
 
-        print("start training...",flush=True)
+        logger.info("start training year {}".format(year))
         his_loss =[]
         val_time = []
         train_time = []
@@ -90,7 +90,7 @@ def main():
                 engine.scheduler.step() #
                 if iter % args.print_every == 0 :
                     log = 'Iter: {:03d}, Train Loss: {:.4f}, Train MAE: {:.4f}, Train MAPE: {:.4f}, Train RMSE: {:.4f}'
-                    print(log.format(iter, train_loss[-1], train_mae[-1], train_mape[-1], train_rmse[-1]),flush=True)
+                    logger.info(log.format(iter, train_loss[-1], train_mae[-1], train_mape[-1], train_rmse[-1]),flush=True)
             t2 = time.time()
             train_time.append(t2-t1)
 
@@ -113,7 +113,7 @@ def main():
                 valid_rmse.append(metrics[3])
             s2 = time.time()
             log = 'Epoch: {:03d}, Inference Time: {:.4f} secs'
-            print(log.format(i,(s2-s1)))
+            logger.info(log.format(i,(s2-s1)))
             val_time.append(s2-s1)
             mtrain_loss = np.mean(train_loss)
             mtrain_mae = np.mean(train_mae)
@@ -127,10 +127,10 @@ def main():
             his_loss.append(mvalid_loss)
 
             log = 'Epoch: {:03d}, Train Loss: {:.4f}, Train MAE: {:.4f}, Train MAPE: {:.4f}, Train RMSE: {:.4f}, Valid Loss: {:.4f}, Valid MAE: {:.4f}, Valid MAPE: {:.4f}, Valid RMSE: {:.4f}, Training Time: {:.4f}/epoch'
-            print(log.format(i, mtrain_loss, mtrain_mae, mtrain_mape, mtrain_rmse, mvalid_loss, mvalid_mae, mvalid_mape, mvalid_rmse, (t2 - t1)),flush=True)
+            logger.info(log.format(i, mtrain_loss, mtrain_mae, mtrain_mape, mtrain_rmse, mvalid_loss, mvalid_mae, mvalid_mape, mvalid_rmse, (t2 - t1)),flush=True)
             torch.save(engine.model.state_dict(), args.save+"_epoch_"+str(i)+"_"+str(round(mvalid_loss,2))+".pth")
-        print("Average Training Time: {:.4f} secs/epoch".format(np.mean(train_time)))
-        print("Average Inference Time: {:.4f} secs".format(np.mean(val_time)))
+        logger.info("Average Training Time: {:.4f} secs/epoch".format(np.mean(train_time)))
+        logger.info("Average Inference Time: {:.4f} secs".format(np.mean(val_time)))
 
 
         # test
@@ -151,9 +151,9 @@ def main():
         yhat = torch.cat(outputs,dim=0)
         yhat = yhat[:realy.size(0),...]
 
-        print("Training finished")
-        print("The valid loss on best model is", str(round(his_loss[bestid],4)))
-        print("The epoch of the best model is:", str(bestid + 1))
+        logger.info("Training finished")
+        logger.info("The valid loss on best model is", str(round(his_loss[bestid],4)))
+        logger.info("The epoch of the best model is:", str(bestid + 1))
 
         amae = []
         amape = []
@@ -164,13 +164,13 @@ def main():
             real = realy[:,i,:]
             metrics = util.metric(pred,real)
             log = 'Evaluate best model on test data for horizon {:d}, Test MAE: {:.4f}, Test MAPE: {:.4f}, Test RMSE: {:.4f}'
-            print(log.format(i+1, metrics[0], metrics[1], metrics[2]))
+            logger.info(log.format(i+1, metrics[0], metrics[1], metrics[2]))
             amae.append(metrics[0])
             amape.append(metrics[1])
             armse.append(metrics[2])
 
         log = 'On average over 12 horizons, Test MAE: {:.4f}, Test MAPE: {:.4f}, Test RMSE: {:.4f}'
-        print(log.format(np.mean(amae),np.mean(amape),np.mean(armse)))
+        logger.info(log.format(np.mean(amae),np.mean(amape),np.mean(armse)))
         torch.save(engine.model.state_dict(), args.save+"_exp"+str(args.expid)+"_best_"+str(round(his_loss[bestid],2))+".pth")
 
 
