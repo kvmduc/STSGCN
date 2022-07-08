@@ -152,10 +152,11 @@ def main():
 
         yhat = torch.cat(outputs,dim=0)
         yhat = yhat[:realy.size(0),...]
-
+        print(yhat.shape)
+        print(realy.shape)
         logger.info("Training finished")
-        logger.info("The valid loss on best model is", str(round(his_loss[bestid],4)))
-        logger.info("The epoch of the best model is:", str(bestid + 1))
+        logger.info("The valid loss on best model is {}".format(str(round(his_loss[bestid],4))))
+        logger.info("The epoch of the best model is: {}".format(str(bestid + 1)))
 
         amae = []
         amape = []
@@ -163,7 +164,7 @@ def main():
         for i in [2,5,11]:
             # pred = scaler.inverse_transform(yhat[:,i,:])
             pred = yhat[:,:,i]
-            real = realy[:,i,:]
+            real = realy[:,:,i]
             metrics = util.metric(pred,real)
             log = 'Evaluate best model on test data for horizon {:d}, Test MAE: {:.4f}, Test MAPE: {:.4f}, Test RMSE: {:.4f}'
             logger.info(log.format(i+1, metrics[0], metrics[1], metrics[2]))
