@@ -23,7 +23,7 @@ parser.add_argument('--batch_size',type=int,default=32,help='batch size')
 parser.add_argument('--learning_rate',type=float,default=1e-3,help='learning rate')
 parser.add_argument('--epochs',type=int,default=100,help='') # 200
 parser.add_argument('--print_every',type=int,default=100,help='Training print')
-parser.add_argument('--save',type=str,default='/data/cs.aau.dk/tungkvt/Trafficstream/result/graph-wavenet/',help='save path')
+parser.add_argument('--save',type=str,default='/data/cs.aau.dk/tungkvt/Trafficstream/result/stsgcn/',help='save path')
 parser.add_argument('--expid',type=int,default=1,help='experiment id')
 parser.add_argument('--gcn_num',type=int,default=3,help='Number of gcn')
 parser.add_argument('--layer_num',type=int,default=4,help='Number of layers')
@@ -152,8 +152,8 @@ def main():
 
         yhat = torch.cat(outputs,dim=0)
         yhat = yhat[:realy.size(0),...]
-        print(yhat.shape)
-        print(realy.shape)
+        # print(yhat.shape)   # torch.Size([3567, 12, 170])
+        # print(realy.shape)  # torch.Size([3567, 12, 170])
         logger.info("Training finished")
         logger.info("The valid loss on best model is {}".format(str(round(his_loss[bestid],4))))
         logger.info("The epoch of the best model is: {}".format(str(bestid + 1)))
@@ -163,8 +163,8 @@ def main():
         armse = []
         for i in [2,5,11]:
             # pred = scaler.inverse_transform(yhat[:,i,:])
-            pred = yhat[:,:,i]
-            real = realy[:,:,i]
+            pred = yhat[:,i,:]
+            real = realy[:,i,:]
             metrics = util.metric(pred,real)
             log = 'Evaluate best model on test data for horizon {:d}, Test MAE: {:.4f}, Test MAPE: {:.4f}, Test RMSE: {:.4f}'
             logger.info(log.format(i+1, metrics[0], metrics[1], metrics[2]))
